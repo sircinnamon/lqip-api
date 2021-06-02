@@ -3,6 +3,7 @@ package imagehandler
 import (
 	"log"
 	"fmt"
+	"runtime"
 	"github.com/sircinnamon/sqip"
 )
 
@@ -11,7 +12,8 @@ func Hw(){
 }
 func Run(){
 	in := "testimg.jpg"
-	svg, w, h, err := sqip.Run(in, 256, 8, 1, 128, 0, 1, "")
+	workers := runtime.NumCPU()
+	svg, w, h, err := sqip.Run(in, 256, 8, 1, 128, 0, workers, "")
 
 	if err != nil {
 		log.Fatal(err)
