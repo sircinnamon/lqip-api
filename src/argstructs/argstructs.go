@@ -4,7 +4,6 @@ type ServerArgs struct {
 	Port string
 }
 
-
 type ImageHandlerArgs struct {
-	Test string
+	Shapes int
 }

@@ -2,7 +2,7 @@ package main
 
 import (
 	"server"
-	"fmt"
+	"log"
 	"argstructs"
 )
 
@@ -11,7 +11,13 @@ func init() {
 }
 
 func main() {
-	fmt.Println("Running")
+	log.Println("Running")
 	server.Hw()
-	server.ListenAndServe(argstructs.ServerArgs{":9980"}, argstructs.ImageHandlerArgs{})
+	servArgs := argstructs.ServerArgs{
+		":9980",
+	}
+	imgArgs := argstructs.ImageHandlerArgs{
+		16,
+	}
+	server.ListenAndServe(&servArgs, &imgArgs)
 }
