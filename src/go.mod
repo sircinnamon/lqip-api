@@ -8,8 +8,11 @@ require (
 	github.com/sircinnamon/sqip v0.7.1-0.20190909152243-f9bf58f72d59 // indirect
 	github.com/tdewolff/minify v2.3.6+incompatible // indirect
 	github.com/tdewolff/parse v2.3.4+incompatible // indirect
+	github.com/valyala/fasthttp v1.26.0 // indirect
 	golang.org/x/image v0.0.0-20210504121937-7319ad40d33e // indirect
 	imagehandler v0.0.0
+	server v0.0.0
 )
 
 replace imagehandler v0.0.0 => ./imagehandler
+replace server v0.0.0 => ./server

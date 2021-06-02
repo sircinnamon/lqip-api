@@ -10,10 +10,10 @@ import (
 func Hw(){
 	fmt.Println("Hello from Image Handler")
 }
-func Run(){
+func Run() string{
 	in := "testimg.jpg"
 	workers := runtime.NumCPU()
-	svg, w, h, err := sqip.Run(in, 256, 8, 1, 128, 0, workers, "")
+	svg, _, _, err := sqip.Run(in, 256, 8, 1, 128, 0, workers, "")
 
 	if err != nil {
 		log.Fatal(err)
@@ -24,6 +24,5 @@ func Run(){
 		log.Fatal(err)
 	}
 
-	tag := sqip.ImageTag(out, sqip.Base64(svg), w, h)
-	log.Print(tag)
+	return svg
 }

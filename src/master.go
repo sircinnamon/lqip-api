@@ -1,7 +1,7 @@
 package main
 
 import (
-	"imagehandler"
+	"server"
 	"fmt"
 )
 
@@ -11,6 +11,5 @@ func init() {
 
 func main() {
 	fmt.Println("Running")
-	imagehandler.Hw()
-	imagehandler.Run()
+	server.Hw()
 }
