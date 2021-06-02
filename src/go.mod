@@ -12,7 +12,9 @@ require (
 	golang.org/x/image v0.0.0-20210504121937-7319ad40d33e // indirect
 	imagehandler v0.0.0
 	server v0.0.0
+	argstructs v0.0.0
 )
 
 replace imagehandler v0.0.0 => ./imagehandler
 replace server v0.0.0 => ./server
+replace argstructs v0.0.0 => ./argstructs
