@@ -10,3 +10,7 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+sftp-config.json
+*.sublime-project
+*.sublime-workspace
