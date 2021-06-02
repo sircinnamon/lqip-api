@@ -16,8 +16,22 @@ func testEndpointHandler(imgArgs *argstructs.ImageHandlerArgs, ctx *fasthttp.Req
 	ctx.SetStatusCode(fasthttp.StatusOK)
 	ctx.Response.Header.Set("Content-Type", "image/svg+xml")
 	log.Println("Starting image conversion...")
-	ctx.SetBody([]byte(imagehandler.Run(imgArgs)))
+	ctx.SetBody([]byte(imagehandler.TestRun(imgArgs)))
 	log.Println("Done!")
+}
+
+func syncPostHandler(imgArgs *argstructs.ImageHandlerArgs, ctx *fasthttp.RequestCtx) {
+	log.Println("Starting image conversion...")
+	svg, err := imagehandler.SyncRun(imgArgs, ctx.PostBody())
+	if err != nil {
+		log.Fatal(err)
+		ctx.Error("Conversion Failed", fasthttp.StatusInternalServerError)
+		return
+	}
+	log.Println("Done!")
+	ctx.SetStatusCode(fasthttp.StatusOK)
+	ctx.Response.Header.Set("Content-Type", "image/svg+xml")
+	ctx.SetBody([]byte(svg))
 }
 
 func ListenAndServe(args *argstructs.ServerArgs, imgArgs *argstructs.ImageHandlerArgs) {
@@ -25,7 +39,12 @@ func ListenAndServe(args *argstructs.ServerArgs, imgArgs *argstructs.ImageHandle
 		log.Println(string(ctx.Path()))
 		switch string(ctx.Path()) {
 		case "/":
-			testEndpointHandler(imgArgs, ctx)
+			switch string(ctx.Method()){
+			case "POST":
+				syncPostHandler(imgArgs, ctx)
+			default:
+				testEndpointHandler(imgArgs, ctx)
+			}
 		case "/test":
 			testEndpointHandler(imgArgs, ctx)
 		default:
