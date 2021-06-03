@@ -31,6 +31,9 @@ func getShapeCount(args *argstructs.ImageHandlerArgs, qps argstructs.QueryParame
 	if(args.AllowShapeCountQP){
 		if(qps.Shapes != 0){
 			count = qps.Shapes
+			if(count > args.MaxShapeCountQP){
+				count = args.MaxShapeCountQP
+			}
 		}
 	}
 	return count

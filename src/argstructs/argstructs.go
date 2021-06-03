@@ -7,6 +7,7 @@ type ServerArgs struct {
 type ImageHandlerArgs struct {
 	Shapes int
 	AllowShapeCountQP bool
+	MaxShapeCountQP int
 }
 
 type QueryParameters struct {
