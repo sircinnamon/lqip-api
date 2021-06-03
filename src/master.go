@@ -26,6 +26,6 @@ func init() {
 
 func main() {
 	log.Println("Running")
-	server.Hw()
+	// server.Hw()
 	server.ListenAndServe(&servArgs, &imgArgs)
 }

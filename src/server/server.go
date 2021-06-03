@@ -49,7 +49,7 @@ func syncPostHandler(imgArgs *argstructs.ImageHandlerArgs, ctx *fasthttp.Request
 
 func ListenAndServe(args *argstructs.ServerArgs, imgArgs *argstructs.ImageHandlerArgs) {
 	router := func(ctx *fasthttp.RequestCtx){
-		log.Println(string(ctx.Path()))
+		log.Println(fmt.Sprintf("REQ %s - %+v - BODYSIZE %s", ctx.Path(), parseQP(ctx), ctx.Request.Header.Peek("Content-Length")))
 		switch string(ctx.Path()) {
 		case "/":
 			switch string(ctx.Method()){
