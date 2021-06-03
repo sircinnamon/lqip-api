@@ -24,14 +24,6 @@ func parseQP(ctx *fasthttp.RequestCtx) *argstructs.QueryParameters{
 	return &qps
 }
 
-func testEndpointHandler(imgArgs *argstructs.ImageHandlerArgs, ctx *fasthttp.RequestCtx) {
-	ctx.SetStatusCode(fasthttp.StatusOK)
-	ctx.Response.Header.Set("Content-Type", "image/svg+xml")
-	log.Println("Starting image conversion...")
-	ctx.SetBody([]byte(imagehandler.TestRun(imgArgs)))
-	log.Println("Done!")
-}
-
 func syncPostHandler(imgArgs *argstructs.ImageHandlerArgs, ctx *fasthttp.RequestCtx) {
 	log.Println("Starting image conversion...")
 	post_body := ctx.PostBody()
@@ -56,10 +48,8 @@ func ListenAndServe(args *argstructs.ServerArgs, imgArgs *argstructs.ImageHandle
 			case "POST":
 				syncPostHandler(imgArgs, ctx)
 			default:
-				testEndpointHandler(imgArgs, ctx)
+				ctx.Error("Method Not Allowed", fasthttp.StatusMethodNotAllowed)
 			}
-		case "/test":
-			testEndpointHandler(imgArgs, ctx)
 		default:
 			ctx.Error("Not Found", fasthttp.StatusNotFound)
 		}

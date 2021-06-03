@@ -51,18 +51,6 @@ func getMode(args *argstructs.ImageHandlerArgs, qps *argstructs.QueryParameters)
 	return mode
 }
 
-func TestRun(args *argstructs.ImageHandlerArgs) string{
-	in := "testimg.jpg"
-	workers := runtime.NumCPU()
-	svg, _, _, err := sqip.Run(in, 256, args.Shapes, 1, 128, 0, workers, "")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return svg
-}
-
 func SyncRun(args *argstructs.ImageHandlerArgs, body *[]byte, qps *argstructs.QueryParameters) (svg string, err error){
 	img, err := decodeBody(body)
 	if err != nil {
