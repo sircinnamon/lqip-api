@@ -25,6 +25,17 @@ func decodeBody(body []byte) (img image.Image, err error){
 	return img, err
 }
 
+func getShapeCount(args *argstructs.ImageHandlerArgs, qps argstructs.QueryParameters) int{
+	count := args.Shapes
+	log.Println(args)
+	if(args.AllowShapeCountQP){
+		if(qps.Shapes != 0){
+			count = qps.Shapes
+		}
+	}
+	return count
+}
+
 func TestRun(args *argstructs.ImageHandlerArgs) string{
 	in := "testimg.jpg"
 	workers := runtime.NumCPU()
@@ -37,13 +48,15 @@ func TestRun(args *argstructs.ImageHandlerArgs) string{
 	return svg
 }
 
-func SyncRun(args *argstructs.ImageHandlerArgs, body []byte) (svg string, err error){
+func SyncRun(args *argstructs.ImageHandlerArgs, body []byte, qps argstructs.QueryParameters) (svg string, err error){
 	img, err := decodeBody(body)
 	if err != nil {
 		return "", err
 	}
 	workers := runtime.NumCPU()
-	svg, _, _, err = sqip.RunLoaded(img, 256, args.Shapes, 1, 128, 0, workers, "")
+	shapecount := getShapeCount(args, qps)
+	log.Println(shapecount)
+	svg, _, _, err = sqip.RunLoaded(img, 256, shapecount, 1, 128, 0, workers, "")
 	// log.Println(svg)
 	// log.Println(err)
 

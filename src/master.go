@@ -15,6 +15,7 @@ func init() {
 	pflag.IntVarP(&servArgs.Port, "port", "p", 80, "Port to listen on")
 
 	pflag.IntVarP(&imgArgs.Shapes, "defaultShapeCount", "s", 16, "Default number of shapes in an LQIP")
+	pflag.BoolVar(&imgArgs.AllowShapeCountQP, "allowShapeCountQP", true, "Allow user to specify non-default shape count")
 
 	pflag.Parse()
 }
