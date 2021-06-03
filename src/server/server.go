@@ -6,7 +6,6 @@ import (
 	"log"
 	"argstructs"
 	"fmt"
-	"strconv"
 )
 
 func Hw() {
@@ -18,7 +17,9 @@ func Hw() {
 func parseQP(ctx *fasthttp.RequestCtx) *argstructs.QueryParameters{
 	var qps argstructs.QueryParameters
 
-	qps.Shapes, _ = strconv.Atoi(string(ctx.QueryArgs().Peek("shapecount")))
+	// qps.X will be set to -1 if missing
+	qps.Shapes, _ = ctx.QueryArgs().GetUint("shapecount")
+	qps.Mode, _ = ctx.QueryArgs().GetUint("mode")
 
 	return &qps
 }

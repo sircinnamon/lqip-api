@@ -10,6 +10,8 @@ import (
 	_ "image/gif"  // register gif
 	_ "image/jpeg" // register jpeg
 	_ "image/png"  // register png
+	"strings"
+	"fmt"
 )
 
 func Hw(){
@@ -29,7 +31,7 @@ func getShapeCount(args *argstructs.ImageHandlerArgs, qps *argstructs.QueryParam
 	count := args.Shapes
 	// log.Println(args)
 	if(args.AllowShapeCountQP){
-		if(qps.Shapes != 0){
+		if(qps.Shapes > 0){
 			count = qps.Shapes
 			if(count > args.MaxShapeCountQP){
 				count = args.MaxShapeCountQP
@@ -37,6 +39,16 @@ func getShapeCount(args *argstructs.ImageHandlerArgs, qps *argstructs.QueryParam
 		}
 	}
 	return count
+}
+
+func getMode(args *argstructs.ImageHandlerArgs, qps *argstructs.QueryParameters) int{
+	mode := args.Mode
+	if(qps.Mode > -1){	
+		if(strings.Contains(args.AllowedModeQPs, fmt.Sprintf("%d", qps.Mode))){
+			mode = qps.Mode
+		}
+	}
+	return mode
 }
 
 func TestRun(args *argstructs.ImageHandlerArgs) string{
@@ -58,8 +70,9 @@ func SyncRun(args *argstructs.ImageHandlerArgs, body *[]byte, qps *argstructs.Qu
 	}
 	workers := runtime.NumCPU()
 	shapecount := getShapeCount(args, qps)
+	mode := getMode(args, qps)
 	// log.Println(shapecount)
-	svg, _, _, err = sqip.RunLoaded(img, 256, shapecount, 1, 128, 0, workers, "")
+	svg, _, _, err = sqip.RunLoaded(img, 256, shapecount, mode, 128, 0, workers, "")
 	// log.Println(svg)
 	// log.Println(err)
 

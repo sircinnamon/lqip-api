@@ -18,6 +18,9 @@ func init() {
 	pflag.BoolVar(&imgArgs.AllowShapeCountQP, "allowShapeCountQP", true, "Allow user to specify non-default shape count")
 	pflag.IntVar(&imgArgs.MaxShapeCountQP, "maxShapeCountQP", 32, "Maximum user shape count specifiable")
 
+	pflag.IntVarP(&imgArgs.Mode, "defaultMode", "m", 1, "Default type of shape to generate for the LQIP [0-8]")
+	pflag.StringVar(&imgArgs.AllowedModeQPs, "allowedModeQPs", "12345678", "Allowable modes specifiable by user")
+
 	pflag.Parse()
 }
 
