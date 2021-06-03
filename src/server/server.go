@@ -5,6 +5,7 @@ import (
 	"imagehandler"
 	"log"
 	"argstructs"
+	"fmt"
 )
 
 func Hw() {
@@ -52,5 +53,9 @@ func ListenAndServe(args *argstructs.ServerArgs, imgArgs *argstructs.ImageHandle
 		}
 	}
 
-	fasthttp.ListenAndServe(args.Port, router)
+	listenHost := fmt.Sprintf(":%d", args.Port)
+
+	if err := fasthttp.ListenAndServe(listenHost, router); err != nil {
+		log.Fatalf("error in ListenAndServe: %s", err)
+	}
 }

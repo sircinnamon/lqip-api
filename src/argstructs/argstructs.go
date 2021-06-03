@@ -1,7 +1,7 @@
 package argstructs
 
 type ServerArgs struct {
-	Port string
+	Port int
 }
 
 type ImageHandlerArgs struct {
