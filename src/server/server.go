@@ -15,12 +15,12 @@ func Hw() {
 }
 
 
-func parseQP(ctx *fasthttp.RequestCtx) argstructs.QueryParameters{
+func parseQP(ctx *fasthttp.RequestCtx) *argstructs.QueryParameters{
 	var qps argstructs.QueryParameters
 
 	qps.Shapes, _ = strconv.Atoi(string(ctx.QueryArgs().Peek("shapecount")))
 
-	return qps
+	return &qps
 }
 
 func testEndpointHandler(imgArgs *argstructs.ImageHandlerArgs, ctx *fasthttp.RequestCtx) {
@@ -33,7 +33,8 @@ func testEndpointHandler(imgArgs *argstructs.ImageHandlerArgs, ctx *fasthttp.Req
 
 func syncPostHandler(imgArgs *argstructs.ImageHandlerArgs, ctx *fasthttp.RequestCtx) {
 	log.Println("Starting image conversion...")
-	svg, err := imagehandler.SyncRun(imgArgs, ctx.PostBody(), parseQP(ctx))
+	post_body := ctx.PostBody()
+	svg, err := imagehandler.SyncRun(imgArgs, &post_body, parseQP(ctx))
 	if err != nil {
 		log.Fatal(err)
 		ctx.Error("Conversion Failed", fasthttp.StatusInternalServerError)
