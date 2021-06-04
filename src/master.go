@@ -37,7 +37,5 @@ func init() {
 func main() {
 	log.Println("Running")
 	// server.Hw()
-	server.InitCache(&servArgs)
-	server.InitPostback(&servArgs)
 	server.ListenAndServe(&servArgs, &imgArgs)
 }

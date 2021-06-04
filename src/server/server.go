@@ -154,10 +154,12 @@ func ListenAndServe(args *argstructs.ServerArgs, imgArgs *argstructs.ImageHandle
 	r := router.New()
 	r.POST("/", func(ctx *fasthttp.RequestCtx){syncPostHandler(imgArgs, ctx)})
 	if(args.AllowAsync){
+		InitCache(&servArgs)
 		r.POST("/async", func(ctx *fasthttp.RequestCtx){asyncPostHandler(imgArgs, ctx)})
 		r.GET("/async/{id}", func(ctx *fasthttp.RequestCtx){asyncGetHandler(imgArgs, ctx, ctx.UserValue("id").(string))})
 	}
 	if(args.AllowPostback){
+		InitPostback(&servArgs)
 		r.POST("/postback", func(ctx *fasthttp.RequestCtx){postbackPostHandler(imgArgs, ctx)})
 	}
 	listenHost := fmt.Sprintf(":%d", args.Port)
