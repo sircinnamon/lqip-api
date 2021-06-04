@@ -58,7 +58,7 @@ func syncPostHandler(imgArgs *argstructs.ImageHandlerArgs, ctx *fasthttp.Request
 	post_body := ctx.PostBody()
 	svg, err := imagehandler.SyncRun(imgArgs, &post_body, parseQP(ctx))
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		ctx.Error("Conversion Failed", fasthttp.StatusInternalServerError)
 		return
 	}
@@ -83,7 +83,7 @@ func asyncPostHandler(imgArgs *argstructs.ImageHandlerArgs, ctx *fasthttp.Reques
 			asyncStoreCache.Set(token, svg, cache.DefaultExpiration)
 			log.Println(fmt.Sprintf("Cached at %s", token))
 		case err := <- errCh:
-			log.Fatal(err)
+			log.Println(err)
 		}
 	}()
 }
