@@ -13,9 +13,12 @@ type ImageHandlerArgs struct {
 	MaxShapeCountQP int
 	Mode int
 	AllowedModeQPs string
+	Blur int
+	AllowBlurQP bool
 }
 
 type QueryParameters struct {
 	Shapes int
 	Mode int
+	Blur int
 }

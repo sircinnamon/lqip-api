@@ -32,6 +32,7 @@ func parseQP(ctx *fasthttp.RequestCtx) *argstructs.QueryParameters{
 	// qps.X will be set to -1 if missing
 	qps.Shapes, _ = ctx.QueryArgs().GetUint("shapecount")
 	qps.Mode, _ = ctx.QueryArgs().GetUint("mode")
+	qps.Blur, _ = ctx.QueryArgs().GetUint("blur")
 
 	return &qps
 }
@@ -82,11 +83,15 @@ func asyncPostHandler(imgArgs *argstructs.ImageHandlerArgs, ctx *fasthttp.Reques
 	}()
 }
 
-func asyncGetHandler(ctx *fasthttp.RequestCtx, id string) {
+func asyncGetHandler(imgArgs *argstructs.ImageHandlerArgs, ctx *fasthttp.RequestCtx, id string) {
 	logReq(ctx)
 	svg, found := asyncStoreCache.Get(id)
 	// Maybe handle a "wait longer" case
 	if found {
+		qps := parseQP(ctx)
+		if(qps.Blur != -1){
+			svg = imagehandler.Reblur(imgArgs, parseQP(ctx), svg.(string))
+		}
 		ctx.SetStatusCode(fasthttp.StatusOK)
 		ctx.Response.Header.Set("Content-Type", "image/svg+xml")
 		ctx.SetBody([]byte(svg.(string)))
@@ -100,7 +105,7 @@ func ListenAndServe(args *argstructs.ServerArgs, imgArgs *argstructs.ImageHandle
 	r.POST("/", func(ctx *fasthttp.RequestCtx){syncPostHandler(imgArgs, ctx)})
 	if(args.AllowAsync){
 		r.POST("/async", func(ctx *fasthttp.RequestCtx){asyncPostHandler(imgArgs, ctx)})
-		r.GET("/async/{id}", func(ctx *fasthttp.RequestCtx){asyncGetHandler(ctx, ctx.UserValue("id").(string))})
+		r.GET("/async/{id}", func(ctx *fasthttp.RequestCtx){asyncGetHandler(imgArgs, ctx, ctx.UserValue("id").(string))})
 	}
 	listenHost := fmt.Sprintf(":%d", args.Port)
 

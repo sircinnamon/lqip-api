@@ -12,6 +12,8 @@ import (
 	_ "image/png"  // register png
 	"strings"
 	"fmt"
+	"regexp"
+	"strconv"
 )
 
 func Hw(){
@@ -25,6 +27,17 @@ func decodeBody(body *[]byte) (img image.Image, err error){
 	img, _, err = image.Decode(bodyReader)
 	// log.Println("decoded")
 	return img, err
+}
+
+func Reblur(args *argstructs.ImageHandlerArgs, qps *argstructs.QueryParameters, svg string) string {
+	blur := getBlur(args, qps)
+	return reblur(svg, blur)
+}
+
+func reblur(svg string, blur int) string {
+	blur_re := regexp.MustCompile(`(<feGaussianBlur stdDeviation=")(\d+)(")`)
+	svg = blur_re.ReplaceAllString(svg, `${1}`+strconv.Itoa(blur)+`${3}`)
+	return svg
 }
 
 func getShapeCount(args *argstructs.ImageHandlerArgs, qps *argstructs.QueryParameters) int{
@@ -51,6 +64,16 @@ func getMode(args *argstructs.ImageHandlerArgs, qps *argstructs.QueryParameters)
 	return mode
 }
 
+func getBlur(args *argstructs.ImageHandlerArgs, qps *argstructs.QueryParameters) int{
+	blur := args.Blur
+	if(args.AllowBlurQP){
+		if(qps.Blur > -1){	
+			blur = qps.Blur
+		}	
+	}
+	return blur
+}
+
 func SyncRun(args *argstructs.ImageHandlerArgs, body *[]byte, qps *argstructs.QueryParameters) (svg string, err error){
 	img, err := decodeBody(body)
 	if err != nil {
@@ -59,8 +82,12 @@ func SyncRun(args *argstructs.ImageHandlerArgs, body *[]byte, qps *argstructs.Qu
 	workers := runtime.NumCPU()
 	shapecount := getShapeCount(args, qps)
 	mode := getMode(args, qps)
+	blur := getBlur(args, qps)
 	// log.Println(shapecount)
 	svg, _, _, err = sqip.RunLoaded(img, 256, shapecount, mode, 128, 0, workers, "")
+	if(blur != 12){ // 12 is default in the library
+		svg = reblur(svg, blur)
+	}
 	// log.Println(svg)
 	// log.Println(err)
 
