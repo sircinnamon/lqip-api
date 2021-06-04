@@ -17,6 +17,8 @@ func init() {
 	pflag.BoolVarP(&servArgs.AllowAsync, "async", "a", false, "Allow drop-off/pickup async requests")
 	pflag.IntVar(&servArgs.AsyncCacheExpiry, "cacheLife", 600, "Time (in seconds) an async svg should be stored")
 	pflag.IntVar(&servArgs.AsyncCacheGC, "cacheGC", 900, "Cadence (in seconds) in between scraping cache for expired content")
+	
+	pflag.BoolVarP(&servArgs.AllowPostback, "postback", "r", false, "Allow drop-off/send-back async requests")
 
 	pflag.IntVarP(&imgArgs.Shapes, "defaultShapeCount", "s", 16, "Default number of shapes in an LQIP")
 	pflag.BoolVar(&imgArgs.AllowShapeCountQP, "allowShapeCountQP", true, "Allow user to specify non-default shape count")
@@ -36,5 +38,6 @@ func main() {
 	log.Println("Running")
 	// server.Hw()
 	server.InitCache(&servArgs)
+	server.InitPostback(&servArgs)
 	server.ListenAndServe(&servArgs, &imgArgs)
 }

@@ -5,6 +5,7 @@ type ServerArgs struct {
 	AllowAsync bool
 	AsyncCacheExpiry int
 	AsyncCacheGC int
+	AllowPostback bool
 }
 
 type ImageHandlerArgs struct {
@@ -21,4 +22,5 @@ type QueryParameters struct {
 	Shapes int
 	Mode int
 	Blur int
+	Postback string
 }
