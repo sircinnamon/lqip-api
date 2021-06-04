@@ -27,5 +27,6 @@ func init() {
 func main() {
 	log.Println("Running")
 	// server.Hw()
+	server.InitCache(&servArgs)
 	server.ListenAndServe(&servArgs, &imgArgs)
 }

@@ -6,7 +6,17 @@ import (
 	"log"
 	"argstructs"
 	"fmt"
+	"time"
+	"github.com/patrickmn/go-cache"
+	"github.com/google/uuid"
+	"github.com/fasthttp/router"
 )
+
+var asyncStoreCache *cache.Cache
+
+func InitCache(args *argstructs.ServerArgs){
+	asyncStoreCache = cache.New(2*time.Minute, 2*time.Minute)
+}
 
 func Hw() {
 	log.Println("Hello from Server")
@@ -24,7 +34,17 @@ func parseQP(ctx *fasthttp.RequestCtx) *argstructs.QueryParameters{
 	return &qps
 }
 
+func logReq(ctx *fasthttp.RequestCtx){
+	switch string(ctx.Method()) {
+	case "POST":
+		log.Println(fmt.Sprintf("REQ %s %s - %+v - BODYSIZE %s", ctx.Method(), ctx.Path(), parseQP(ctx), ctx.Request.Header.Peek("Content-Length")))
+	default:
+		log.Println(fmt.Sprintf("REQ %s %s - %+v", ctx.Method(), ctx.Path(), parseQP(ctx)))
+	}
+}
+
 func syncPostHandler(imgArgs *argstructs.ImageHandlerArgs, ctx *fasthttp.RequestCtx) {
+	logReq(ctx)
 	log.Println("Starting image conversion...")
 	post_body := ctx.PostBody()
 	svg, err := imagehandler.SyncRun(imgArgs, &post_body, parseQP(ctx))
@@ -34,30 +54,54 @@ func syncPostHandler(imgArgs *argstructs.ImageHandlerArgs, ctx *fasthttp.Request
 		return
 	}
 	log.Println("Done!")
-	ctx.SetStatusCode(fasthttp.StatusOK)
+	ctx.SetStatusCode(fasthttp.StatusAccepted)
 	ctx.Response.Header.Set("Content-Type", "image/svg+xml")
 	ctx.SetBody([]byte(svg))
 }
 
-func ListenAndServe(args *argstructs.ServerArgs, imgArgs *argstructs.ImageHandlerArgs) {
-	router := func(ctx *fasthttp.RequestCtx){
-		log.Println(fmt.Sprintf("REQ %s - %+v - BODYSIZE %s", ctx.Path(), parseQP(ctx), ctx.Request.Header.Peek("Content-Length")))
-		switch string(ctx.Path()) {
-		case "/":
-			switch string(ctx.Method()){
-			case "POST":
-				syncPostHandler(imgArgs, ctx)
-			default:
-				ctx.Error("Method Not Allowed", fasthttp.StatusMethodNotAllowed)
-			}
-		default:
-			ctx.Error("Not Found", fasthttp.StatusNotFound)
+func asyncPostHandler(imgArgs *argstructs.ImageHandlerArgs, ctx *fasthttp.RequestCtx) {
+	logReq(ctx)
+	log.Println("Starting image conversion...")
+	post_body := ctx.PostBody()
+	svgCh, errCh := imagehandler.AsyncRun(imgArgs, &post_body, parseQP(ctx))
+	ctx.SetStatusCode(fasthttp.StatusOK)
+	ctx.Response.Header.Set("Content-Type", "image/svg+xml")
+	token := uuid.New().String()
+	ctx.SetBody([]byte(token))
+	go func() {
+		select {
+		case svg := <- svgCh:
+			log.Println("Done!")
+			asyncStoreCache.Set(token, svg, cache.DefaultExpiration)
+			log.Println(fmt.Sprintf("Cached at %s", token))
+		case err := <- errCh:
+			log.Fatal(err)
 		}
+	}()
+}
+
+func asyncGetHandler(ctx *fasthttp.RequestCtx, id string) {
+	logReq(ctx)
+	svg, found := asyncStoreCache.Get(id)
+	// Maybe handle a "wait longer" case
+	if found {
+		ctx.SetStatusCode(fasthttp.StatusOK)
+		ctx.Response.Header.Set("Content-Type", "image/svg+xml")
+		ctx.SetBody([]byte(svg.(string)))
+	} else {
+		ctx.Error("Not Found", fasthttp.StatusNotFound)
 	}
+}
+
+func ListenAndServe(args *argstructs.ServerArgs, imgArgs *argstructs.ImageHandlerArgs) {
+	r := router.New()
+	r.POST("/", func(ctx *fasthttp.RequestCtx){syncPostHandler(imgArgs, ctx)})
+	r.POST("/async", func(ctx *fasthttp.RequestCtx){asyncPostHandler(imgArgs, ctx)})
+	r.GET("/async/{id}", func(ctx *fasthttp.RequestCtx){asyncGetHandler(ctx, ctx.UserValue("id").(string))})
 
 	listenHost := fmt.Sprintf(":%d", args.Port)
 
-	if err := fasthttp.ListenAndServe(listenHost, router); err != nil {
+	if err := fasthttp.ListenAndServe(listenHost, r.Handler); err != nil {
 		log.Fatalf("error in ListenAndServe: %s", err)
 	}
 }

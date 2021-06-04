@@ -66,3 +66,17 @@ func SyncRun(args *argstructs.ImageHandlerArgs, body *[]byte, qps *argstructs.Qu
 
 	return svg, err
 }
+
+func AsyncRun(args *argstructs.ImageHandlerArgs, body *[]byte, qps *argstructs.QueryParameters) (chan string, chan error){
+	r := make(chan string)
+	error := make(chan error)
+	go func() {
+		svg, syncErr := SyncRun(args, body, qps)
+		if syncErr != nil {
+			error <- syncErr
+			return
+		}
+		r <- svg
+	}()
+	return r, error
+}
