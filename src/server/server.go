@@ -15,7 +15,9 @@ import (
 var asyncStoreCache *cache.Cache
 
 func InitCache(args *argstructs.ServerArgs){
-	asyncStoreCache = cache.New(2*time.Minute, 2*time.Minute)
+	expiry := time.Duration(args.AsyncCacheExpiry)*time.Second
+	garbage_collect := time.Duration(args.AsyncCacheGC)*time.Second
+	asyncStoreCache = cache.New(expiry, garbage_collect)
 }
 
 func Hw() {
@@ -96,9 +98,10 @@ func asyncGetHandler(ctx *fasthttp.RequestCtx, id string) {
 func ListenAndServe(args *argstructs.ServerArgs, imgArgs *argstructs.ImageHandlerArgs) {
 	r := router.New()
 	r.POST("/", func(ctx *fasthttp.RequestCtx){syncPostHandler(imgArgs, ctx)})
-	r.POST("/async", func(ctx *fasthttp.RequestCtx){asyncPostHandler(imgArgs, ctx)})
-	r.GET("/async/{id}", func(ctx *fasthttp.RequestCtx){asyncGetHandler(ctx, ctx.UserValue("id").(string))})
-
+	if(args.AllowAsync){
+		r.POST("/async", func(ctx *fasthttp.RequestCtx){asyncPostHandler(imgArgs, ctx)})
+		r.GET("/async/{id}", func(ctx *fasthttp.RequestCtx){asyncGetHandler(ctx, ctx.UserValue("id").(string))})
+	}
 	listenHost := fmt.Sprintf(":%d", args.Port)
 
 	if err := fasthttp.ListenAndServe(listenHost, r.Handler); err != nil {

@@ -2,6 +2,9 @@ package argstructs
 
 type ServerArgs struct {
 	Port int
+	AllowAsync bool
+	AsyncCacheExpiry int
+	AsyncCacheGC int
 }
 
 type ImageHandlerArgs struct {

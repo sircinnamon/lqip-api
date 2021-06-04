@@ -14,6 +14,10 @@ func init() {
 	// Init flags
 	pflag.IntVarP(&servArgs.Port, "port", "p", 80, "Port to listen on")
 
+	pflag.BoolVarP(&servArgs.AllowAsync, "async", "a", false, "Allow drop-off/pickup async requests")
+	pflag.IntVar(&servArgs.AsyncCacheExpiry, "cacheLife", 600, "Time (in seconds) an async svg should be stored")
+	pflag.IntVar(&servArgs.AsyncCacheGC, "cacheGC", 900, "Cadence (in seconds) in between scraping cache for expired content")
+
 	pflag.IntVarP(&imgArgs.Shapes, "defaultShapeCount", "s", 16, "Default number of shapes in an LQIP")
 	pflag.BoolVar(&imgArgs.AllowShapeCountQP, "allowShapeCountQP", true, "Allow user to specify non-default shape count")
 	pflag.IntVar(&imgArgs.MaxShapeCountQP, "maxShapeCountQP", 32, "Maximum user shape count specifiable")
