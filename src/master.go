@@ -25,7 +25,7 @@ func init() {
 	pflag.IntVar(&imgArgs.MaxShapeCountQP, "maxShapeCountQP", 32, "Maximum user shape count specifiable")
 
 	pflag.IntVarP(&imgArgs.Mode, "defaultMode", "m", 1, "Default type of shape to generate for the LQIP [0-8]")
-	pflag.StringVar(&imgArgs.AllowedModeQPs, "allowedModeQPs", "12345678", "Allowable modes specifiable by user")
+	pflag.StringVar(&imgArgs.AllowedModeQPs, "allowedModeQPs", "012345678", "Allowable modes specifiable by user")
 
 	pflag.IntVarP(&imgArgs.Blur, "blur", "b", 12, "Default level of Gaussian blur filter")
 	pflag.BoolVar(&imgArgs.AllowBlurQP, "allowBlurQP", true, "Allow user to specify different blur level")
