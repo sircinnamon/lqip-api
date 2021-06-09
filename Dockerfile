@@ -12,4 +12,5 @@ FROM scratch
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /go/bin/lqip-api /go/bin/lqip-api
 
-ENTRYPOINT ["/go/bin/lqip-api", "-p", "80"]
+ENTRYPOINT ["/go/bin/lqip-api"]
+CMD ["-p", "80"]
